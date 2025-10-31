@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Travel App User Flow Diagram — HTML+CSS</title>
+  <style>
+    :root{
+      --bg-grad-start:#eef2ff;
+      --bg-grad-mid:#f5e9ff;
+      --bg-grad-end:#fff0f6;
+      --indigo-900:#312e81;
+      --indigo-600:#4f46e5;
+      --blue-900:#1e3a8a;
+      --green-700:#047857;
+      --purple-600:#7c3aed;
+      --orange-700:#c2410c;
+      --gray-700:#374151;
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-mid), var(--bg-grad-end));
+      color:var(--gray-700);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:40px auto;
+      padding:28px;
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom:22px;
+    }
+    .title{
+      font-size:30px;
+      color:var(--indigo-900);
+      margin:0 0 6px 0;
+      font-weight:700;
+    }
+    .subtitle{
+      margin:0 0 18px 0;
+      color:#6b7280;
+    }
+
+    .flow-toggle{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      margin-bottom:22px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding:10px 18px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,0.06);
+      background:white;
+      cursor:pointer;
+      font-weight:600;
+      transition:all .18s;
+      box-shadow:none;
+    }
+    .pill:hover{ transform:translateY(-2px) }
+    .pill.active{ color:white; box-shadow:0 10px 25px rgba(16,24,40,0.12); }
+
+    .pill.traveller{ background: #eef2ff; color:var(--blue-900); }
+    .pill.host{ background: #ecfdf5; color:var(--green-700); }
+    .pill.complete{ background: #f5f3ff; color:var(--purple-600); }
+    .pill.active.traveller{ background:var(--indigo-600); color:white; }
+    .pill.active.host{ background:#16a34a; color:white; }
+    .pill.active.complete{ background:var(--purple-600); color:white; }
+
+    .card{
+      background:white;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:var(--card-shadow);
+      overflow:auto;
+    }
+
+    /* layout helpers */
+    .center{ display:flex; align-items:center; justify-content:center; }
+    .col{ display:flex; flex-direction:column; }
+    .row{ display:flex; gap:12px; align-items:center; }
+
+    /* Flow node */
+    .node{
+      width:224px;
+      border-radius:14px;
+      padding:18px;
+      color:white;
+      text-align:center;
+      box-shadow:0 8px 22px rgba(2,6,23,0.08);
+      margin:6px 0;
+    }
+    .node.small{ width:192px; padding:12px; border-radius:12px; }
+    .node .label{ font-weight:700; font-size:13px; margin:6px 0 4px; }
+    .node .desc{ font-size:12px; opacity:0.95; }
+
+    .node.indigo{ background: linear-gradient(135deg,#6366f1,#4f46e5); }
+    .node.blue{ background: linear-gradient(135deg,#60a5fa,#3b82f6); }
+    .node.green{ background: linear-gradient(135deg,#34d399,#059669); }
+    .node.purple{ background: linear-gradient(135deg,#c084fc,#7c3aed); }
+    .node.yellow{ background: linear-gradient(135deg,#facc15,#f59e0b); color:#111827; }
+    .node.orange{ background: linear-gradient(135deg,#fb923c,#f97316); color:#111827; }
+    .node.gray{ background: linear-gradient(135deg,#e5e7eb,#d1d5db); color:#111827; }
+
+    /* diamond decision node */
+    .diamond-wrap{ width:196px; height:196px; display:flex; align-items:center; justify-content:center; margin:14px; }
+    .diamond{
+      width:140px; height:140px; transform:rotate(45deg);
+      border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 10px 30px rgba(2,6,23,0.08);
+      color:#111827;
+      text-align:center;
+      padding:8px;
+    }
+    .diamond .content{ transform:rotate(-45deg); width:100%; }
+
+    .diamond.yellow{ background: linear-gradient(135deg,#facc15,#f59e0b); }
+    .diamond.blue{ background: linear-gradient(135deg,#60a5fa,#3b82f6); color:white; }
+    .diamond.green{ background: linear-gradient(135deg,#34d399,#059669); color:white; }
+
+    /* Arrow visuals */
+    .arrow-vertical{
+      width:2px; height:48px; background:linear-gradient(180deg,#9ca3af,#4b5563);
+      margin:8px auto;
+      border-radius:1px;
+    }
+    .arrow-vertical:after{
+      content:""; display:block; width:0; height:0; margin:0 auto;
+      border-left:8px solid transparent; border-right:8px solid transparent;
+      border-top:10px solid #374151; margin-top:-2px;
+    }
+    .arrow-right{
+      height:2px; width:80px; background:linear-gradient(90deg,#9ca3af,#4b5563);
+      display:inline-block; border-radius:1px;
+      position:relative;
+      margin:0 8px;
+    }
+    .arrow-right:after{
+      content:""; position:absolute; right:-8px; top:-6px;
+      border-top:8px solid transparent; border-bottom:8px solid transparent;
+      border-left:10px solid #374151;
+    }
+    .arrow-label{ display:block; text-align:center; margin-top:6px; font-size:12px; color:#6b7280; background:white; padding:4px 8px; border-radius:6px; display:inline-block; }
+
+    /* Phase boxes */
+    .phase{
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .phase.indigo{ background:#eef2ff; border:1px solid rgba(79,70,229,0.06); }
+    .phase.blue{ background:#eff6ff; border:1px solid rgba(59,130,246,0.06); }
+    .phase.green{ background:#ecfdf5; border:1px solid rgba(16,185,129,0.06); }
+    .phase.orange{ background:#fff7ed; border:1px solid rgba(249,115,22,0.06); }
+    .phase.purple{ background:#fbf7ff; border:1px solid rgba(124,58,237,0.06); }
+
+    /* grids for parallel paths */
+    .grid-2{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; align-items:start; }
+    .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .mini-list{ background:white; padding:8px; border-radius:8px; text-align:center; font-size:12px; }
+
+    /* Complete system layout */
+    .system-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin:12px 0; }
+    .system-grid .panel{ background:#f8fafc; padding:12px; border-radius:10px; }
+
+    /* Data/integrations grid */
+    .data-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .integration-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+
+    /* Small screens */
+    @media (max-width:900px){
+      .grid-2{ grid-template-columns:1fr; }
+      .grid-3{ grid-template-columns:1fr; }
+      .data-grid{ grid-template-columns:repeat(2,1fr); }
+      .integration-grid{ grid-template-columns:repeat(2,1fr); }
+      .diamond-wrap{ width:160px; height:160px; }
+    }
+
+    /* utilities */
+    h3.section-title{ margin:0 0 10px; font-size:16px; font-weight:700; color:var(--indigo-900); text-align:center; }
+    .muted{ color:#6b7280; font-size:13px; }
+    .spacer{ height:12px; }
+    /* small icon style inside nodes */
+    .svg-icon{ width:30px; height:30px; display:block; margin:0 auto 6px; opacity:0.95; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Travel App User Flow Diagram</h1>
+      <p class="subtitle">Complete journey mapping for travellers and hosts</p>
+
+      <div class="flow-toggle" role="tablist" aria-label="Flow selection">
+        <button class="pill traveller active" id="btn-traveller" onclick="showFlow('traveller')" role="tab" aria-selected="true">Traveller Flow</button>
+        <button class="pill host" id="btn-host" onclick="showFlow('host')" role="tab" aria-selected="false">Host Flow</button>
+        <button class="pill complete" id="btn-complete" onclick="showFlow('complete')" role="tab" aria-selected="false">Complete System</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- Traveller -->
+      <div id="flow-traveller" class="flow-view">
+        <div class="col center">
+          <h3 class="section-title">Complete Traveller Journey</h3>
+
+          <!-- Phase 1 -->
+          <div class="phase indigo" style="width:100%; max-width:980px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--indigo-900); font-weight:700;">Phase 1: Onboarding</h4>
+            <div class="col center">
+              <div class="node indigo small">
+                <!-- User icon -->
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="3"></circle><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path></svg>
+                <div class="label">App Launch</div>
+                <div class="desc">First time user</div>
+              </div>
+              <div class="arrow-vertical" aria-hidden="true"></div>
+
+              <div class="node indigo small">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H7"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                <div class="label">Role Selection</div>
+                <div class="desc">Choose Traveller</div>
+              </div>
+
+              <div class="arrow-vertical" aria-hidden="true"></div>
+
+              <div class="node indigo small">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H8"></path><path d="M12 11V7"></path></svg>
+                <div class="label">Registration</div>
+                <div class="desc">Email / Social login</div>
+              </div>
+
+              <div class="arrow-vertical" aria-hidden="true"></div>
+
+              <div class="node indigo small">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1v2"></path><path d="M12 21v2"></path><path d="M4.2 4.2l1.4 1.4"></path><path d="M18.4 18.4l1.4 1.4"></path></svg>
+                <div class="label">Profile Setup</div>
+                <div class="desc">Preferences & interests</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arrow-vertical" style="margin:14px 0;"></div>
+          <div class="arrow-label">Access granted</div>
+
+          <!-- Phase 2 -->
+          <div class="phase blue" style="width:100%; max-width:980px; margin-top:12px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--blue-900); font-weight:700;">Phase 2: Trip Planning</h4>
+            <div class="col center">
+              <div class="node blue">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18"></path><path d="M3 12h18"></path><path d="M3 17h18"></path></svg>
+                <div class="label">Dashboard</div>
+                <div class="desc">Start planning</div>
+              </div>
+
+              <div class="arrow-vertical" aria-hidden="true"></div>
+
+              <div class="node blue">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <div class="label">Search Destination</div>
+                <div class="desc">Where & when to go?</div>
+              </div>
+
+              <div class="arrow-vertical" aria-hidden="true"></div>
+
+              <!-- Decision diamond -->
+              <div class="diamond-wrap">
+                <div class="diamond yellow" role="img" aria-label="Select Trip Type">
+                  <div class="content">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3.5 7.5L22 11l-6 4.5L17 22l-5-3-5 3 1-6.5L2 11l6.5-1.5L12 2z"></path></svg>
+                    <div style="font-weight:700; font-size:13px; margin-top:6px;">Select Trip Type</div>
+                    <div style="font-size:12px; opacity:0.9;">Choose planning approach</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Two parallel paths -->
+              <div class="grid-2" style="width:100%; margin-top:8px;">
+                <!-- Path A -->
+                <div style="border-radius:10px; padding:12px; background:#eff6ff; border:1px solid rgba(59,130,246,0.06);">
+                  <div style="text-align:center; font-weight:700; color:var(--blue-900); margin-bottom:8px;">Path A: Accommodation First</div>
+                  <div class="col center">
+                    <div class="node blue small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"></path></svg>
+                      <div class="label">Browse Stays</div>
+                      <div class="desc">Hotels, apartments</div>
+                    </div>
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node blue small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="14" rx="2"></rect></svg>
+                      <div class="label">Filter & Compare</div>
+                      <div class="desc">Price, location, rating</div>
+                    </div>
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node blue small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l7 4v6l-7 4-7-4V6z"></path></svg>
+                      <div class="label">View Details</div>
+                      <div class="desc">Photos, amenities, reviews</div>
+                    </div>
+
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node green small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"></rect></svg>
+                      <div class="label">Book & Pay</div>
+                      <div class="desc">Confirm reservation</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Path B -->
+                <div style="border-radius:10px; padding:12px; background:#faf5ff; border:1px solid rgba(124,58,237,0.06);">
+                  <div style="text-align:center; font-weight:700; color:var(--purple-600); margin-bottom:8px;">Path B: Activities First</div>
+                  <div class="col center">
+                    <div class="node purple small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3 6 6 .5-4.5 4 1 6-5-3-5 3 1-6L3 8.5 9 8z"></path></svg>
+                      <div class="label">Discover Places</div>
+                      <div class="desc">Attractions, events</div>
+                    </div>
+
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node purple small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg>
+                      <div class="label">Add to Itinerary</div>
+                      <div class="desc">Schedule activities</div>
+                    </div>
+
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node purple small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10a9 9 0 1 0-18 0"></path></svg>
+                      <div class="label">Set Locations</div>
+                      <div class="desc">Plan route</div>
+                    </div>
+
+                    <div class="arrow-vertical" style="height:36px;"></div>
+
+                    <div class="node green small">
+                      <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3h18v14H3z"></path></svg>
+                      <div class="label">Book Nearby Stays</div>
+                      <div class="desc">Based on itinerary</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow-vertical" style="margin-top:12px;"></div>
+              <div class="arrow-label">Both paths converge</div>
+
+              <div class="node purple small" style="margin-top:10px;">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 7h8M8 11h8M8 15h6"></path></svg>
+                <div class="label">Build Complete Itinerary</div>
+                <div class="desc">Day-by-day planning</div>
+              </div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="grid-3" style="width:100%; max-width:700px; justify-items:center;">
+                <div class="node purple small" style="width:200px;">
+                  <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l4 4-4 4-4-4z"></path></svg>
+                  <div class="label">Add Activities</div>
+                  <div class="desc">Places to visit</div>
+                </div>
+                <div class="node purple small" style="width:200px;">
+                  <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg>
+                  <div class="label">Set Time Slots</div>
+                  <div class="desc">Morning/afternoon/evening</div>
+                </div>
+                <div class="node blue small" style="width:200px;">
+                  <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18v10H3z"></path></svg>
+                  <div class="label">Book Transport</div>
+                  <div class="desc">Cars, bikes, transfers</div>
+                </div>
+              </div>
+
+              <div class="arrow-vertical" style="margin-top:12px;"></div>
+
+              <div class="node orange small">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1v22"></path><path d="M4 7h16"></path></svg>
+                <div class="label">Review & Budget</div>
+                <div class="desc">Check total costs</div>
+              </div>
+
+              <div class="arrow-vertical"></div>
+              <div class="node green">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg>
+                <div class="label">Confirm Trip</div>
+                <div class="desc">Final payment</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Trip starts -->
+          <div class="spacer"></div>
+          <div class="arrow-label">Trip starts</div>
+
+          <!-- Phase 3 During Trip -->
+          <div class="phase green" style="width:100%; max-width:980px; margin-top:12px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--green-700); font-weight:700;">Phase 3: During Trip</h4>
+            <div class="col center">
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v4l3 3"></path></svg><div class="label">Active Timeline</div><div class="desc">Real-time tracking</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 0 0-12 0"></path></svg><div class="label">Get Notifications</div><div class="desc">Upcoming activities</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10l-9 6-9-6 9-6 9 6z"></path></svg><div class="label">Navigate</div><div class="desc">Get directions</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div class="label">Check-in Activities</div><div class="desc">Mark as completed</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="diamond-wrap" aria-hidden="true">
+                <div class="diamond yellow">
+                  <div class="content">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
+                    <div style="font-weight:700; font-size:13px; margin-top:6px;">Want to add more?</div>
+                    <div style="font-size:12px; opacity:0.9;">Discover spontaneously</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-2" style="width:100%; max-width:520px; margin-top:6px;">
+                <div style="text-align:center;">
+                  <div style="font-weight:700; color:var(--green-700); margin-bottom:6px;">Yes</div>
+                  <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-9-9"></path></svg><div class="label">Browse Nearby</div><div class="desc">Add new activities</div></div>
+                  <div class="arrow-vertical" style="height:28px;"></div>
+                  <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 7h8M8 11h8M8 15h6"></path></svg><div class="label">Adjust Schedule</div><div class="desc">Update timeline</div></div>
+                </div>
+
+                <div style="text-align:center;">
+                  <div style="font-weight:700; color:#374151; margin-bottom:6px;">No</div>
+                  <div class="node gray small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"></path></svg><div class="label">Follow Plan</div><div class="desc">Stick to itinerary</div></div>
+                </div>
+              </div>
+
+              <div class="arrow-vertical" style="margin-top:8px;"></div>
+              <div class="arrow-label">Day ends</div>
+
+              <div class="node blue small" style="margin-top:8px;">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18v10H3z"></path></svg>
+                <div class="label">Return to Stay</div>
+                <div class="desc">Check-in accommodation</div>
+              </div>
+
+              <div class="arrow-vertical" style="margin-top:8px;"></div>
+
+              <div class="diamond-wrap" style="margin-top:6px;">
+                <div class="diamond yellow">
+                  <div class="content">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="14" rx="2"></rect></svg>
+                    <div style="font-weight:700; font-size:13px; margin-top:6px;">More days left?</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:28px; align-items:center; margin-top:12px;">
+                <div class="text-center">
+                  <div style="font-weight:700; color:var(--green-700);">Yes - Repeat</div>
+                  <div style="font-size:12px; color:#6b7280;">↑ Back to Active Timeline</div>
+                </div>
+                <div class="text-center">
+                  <div style="font-weight:700; color:var(--orange-700);">No - Continue ↓</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <div class="arrow-label">Trip ends</div>
+
+          <!-- Phase 4 Post-Trip -->
+          <div class="phase orange" style="width:100%; max-width:980px; margin-top:12px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--orange-700); font-weight:700;">Phase 4: Post-Trip</h4>
+            <div class="col center">
+              <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 17l-4 2 1-4-3-3 4-1 2-4 2 4 4 1-3 3 1 4z"></path></svg><div class="label">Rate & Review</div><div class="desc">Share experiences</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v8"></path><path d="M8 12h8"></path></svg><div class="label">View Expenses</div><div class="desc">Trip summary</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16v10H4z"></path></svg><div class="label">Save Memories</div><div class="desc">Photos & highlights</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node purple small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18"></path><path d="M12 3v18"></path></svg><div class="label">Get Recommendations</div><div class="desc">Plan next trip</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div class="label">End</div><div class="desc">Journey complete!</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Host Flow -->
+      <div id="flow-host" class="flow-view" style="display:none;">
+        <div class="col center">
+          <h3 class="section-title" style="color:var(--green-700)">Complete Host Journey</h3>
+
+          <!-- Phase 1 Host Onboarding -->
+          <div class="phase green" style="width:100%; max-width:980px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--green-700); font-weight:700;">Phase 1: Host Onboarding</h4>
+            <div class="col center">
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4"></circle><path d="M5 21v-2a6 6 0 0 1 6-6h2"></path></svg><div class="label">Register as Host</div><div class="desc">Business account</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3 6-3 3-3-3 3-6z"></path></svg><div class="label">Identity Verification</div><div class="desc">Upload documents</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path></svg><div class="label">Payment Setup</div><div class="desc">Bank & payout</div></div>
+
+            </div>
+          </div>
+
+          <div class="arrow-vertical" style="margin:10px 0;"></div>
+
+          <!-- Phase 2 Create Listings -->
+          <div class="phase blue" style="width:100%; max-width:980px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--blue-900); font-weight:700;">Phase 2: Create Listings</h4>
+
+            <div class="col center">
+              <div class="diamond-wrap"><div class="diamond blue"><div class="content"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-6 9 6v6a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"></path></svg><div style="font-weight:700">Choose Listing Type</div><div style="font-size:12px; opacity:0.95">What to offer?</div></div></div></div>
+
+              <div class="grid-3" style="width:100%; margin-top:8px; max-width:980px;">
+                <!-- Accommodation -->
+                <div style="border-radius:10px; padding:12px; background:#eff6ff; border:1px solid rgba(59,130,246,0.06);">
+                  <div style="font-weight:700; color:var(--blue-900); margin-bottom:8px; text-align:center;">Accommodation</div>
+                  <div class="node blue small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"></path></svg><div class="label">Add Property</div><div class="desc">Hotel, apartment, etc.</div></div>
+
+                  <div style="margin-top:8px;" class="col">
+                    <div class="mini-list">📍 Location</div>
+                    <div class="mini-list">🏠 Property Info</div>
+                    <div class="mini-list">💰 Pricing</div>
+                    <div class="mini-list">📸 Photos</div>
+                    <div class="mini-list">📅 Availability</div>
+                  </div>
+                </div>
+
+                <!-- Activities -->
+                <div style="border-radius:10px; padding:12px; background:#faf5ff; border:1px solid rgba(124,58,237,0.06);">
+                  <div style="font-weight:700; color:var(--purple-600); margin-bottom:8px; text-align:center;">Activities</div>
+                  <div class="node purple small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3 6 6 .5-4.5 4 1 6-5-3-5 3 1-6L3 8.5 9 8z"></path></svg><div class="label">Add Activity</div><div class="desc">Tours, experiences</div></div>
+
+                  <div style="margin-top:8px;" class="col">
+                    <div class="mini-list">🎯 Activity Type</div>
+                    <div class="mini-list">📝 Description</div>
+                    <div class="mini-list">⏱️ Duration</div>
+                    <div class="mini-list">💰 Pricing</div>
+                    <div class="mini-list">📅 Schedule</div>
+                  </div>
+                </div>
+
+                <!-- Events -->
+                <div style="border-radius:10px; padding:12px; background:#fff7ed; border:1px solid rgba(249,115,22,0.06);">
+                  <div style="font-weight:700; color:var(--orange-700); margin-bottom:8px; text-align:center;">Events</div>
+                  <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg><div class="label">Add Event</div><div class="desc">Workshops, concerts</div></div>
+
+                  <div style="margin-top:8px;" class="col">
+                    <div class="mini-list">🎪 Event Type</div>
+                    <div class="mini-list">📅 Date & Time</div>
+                    <div class="mini-list">📍 Venue</div>
+                    <div class="mini-list">🎟️ Tickets</div>
+                    <div class="mini-list">👥 Capacity</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow-vertical" style="margin:10px 0;"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div class="label">Review & Publish</div><div class="desc">Go live!</div></div>
+            </div>
+          </div>
+
+          <div class="arrow-vertical" style="margin:10px 0;"></div>
+
+          <!-- Phase 3 Booking Management -->
+          <div class="phase purple" style="width:100%; max-width:980px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--purple-600); font-weight:700;">Phase 3: Manage Bookings</h4>
+            <div class="col center">
+              <div class="node purple small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 0 0-12 0"></path></svg><div class="label">Receive Request</div><div class="desc">New booking inquiry</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node purple small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4"></circle></svg><div class="label">Review Guest</div><div class="desc">Check profile & reviews</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="diamond-wrap"><div class="diamond yellow"><div class="content"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div style="font-weight:700">Accept Booking?</div></div></div></div>
+
+              <div class="grid-2" style="width:100%; max-width:720px;">
+                <div style="border-radius:10px; padding:12px; background:#ecfdf5; border:1px solid rgba(16,185,129,0.06);">
+                  <div style="font-weight:700; color:var(--green-700); margin-bottom:8px; text-align:center;">Accept</div>
+                  <div class="col center">
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div class="label">Confirm Booking</div><div class="desc">Send confirmation</div></div>
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10a9 9 0 1 0-18 0"></path></svg><div class="label">Communicate</div><div class="desc">Guest instructions</div></div>
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18v10H3z"></path></svg><div class="label">Prepare Service</div><div class="desc">Setup & preparation</div></div>
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4"></circle></svg><div class="label">Service Delivery</div><div class="desc">Accommodation/Activity</div></div>
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"></path></svg><div class="label">Complete Service</div><div class="desc">Check-out/finish</div></div>
+
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 17l-4 2 1-4-3-3 4-1 2-4 2 4 4 1-3 3 1 4z"></path></svg><div class="label">Review Guest</div><div class="desc">Leave feedback</div></div>
+
+                    <div class="arrow-vertical" style="height:10px;"></div>
+                    <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path></svg><div class="label">Receive Payment</div><div class="desc">Payout processed</div></div>
+                  </div>
+                </div>
+
+                <div style="border-radius:10px; padding:12px; background:#fff1f2; border:1px solid rgba(239,68,68,0.06);">
+                  <div style="font-weight:700; color:#dc2626; margin-bottom:8px; text-align:center;">Decline</div>
+                  <div class="col center">
+                    <div class="node red small" style="background:linear-gradient(135deg,#fecaca,#fca5a5); color:#111827;"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10a9 9 0 1 0-18 0"></path></svg><div class="label">Send Message</div><div class="desc">Explain reason</div></div>
+
+                    <div class="arrow-vertical" style="height:10px;"></div>
+
+                    <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18v10H3z"></path></svg><div class="label">Update Calendar</div><div class="desc">Block dates if needed</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arrow-vertical" style="margin:10px 0;"></div>
+
+          <!-- Phase 4 Analytics -->
+          <div class="phase orange" style="width:100%; max-width:980px;">
+            <h4 style="text-align:center; margin:0 0 10px; color:var(--orange-700); font-weight:700;">Phase 4: Analytics & Growth</h4>
+            <div class="col center">
+              <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3h18v14H3z"></path></svg><div class="label">Monitor Performance</div><div class="desc">Reviews, ratings</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node orange small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v8"></path><path d="M8 12h8"></path></svg><div class="label">Track Earnings</div><div class="desc">Revenue dashboard</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node blue small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16v10H4z"></path></svg><div class="label">Optimize Listings</div><div class="desc">Update photos, pricing</div></div>
+
+              <div class="arrow-vertical"></div>
+
+              <div class="node green small"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"></path></svg><div class="label">Add More Listings</div><div class="desc">Properties, activities, events</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Complete System Flow -->
+      <div id="flow-complete" class="flow-view" style="display:none;">
+        <div class="col center">
+          <h3 class="section-title" style="color:var(--purple-600);">Complete System Architecture</h3>
+
+          <div style="width:100%; max-width:980px; margin-top:8px;">
+            <div class="center">
+              <div style="background:linear-gradient(90deg,var(--indigo-600),var(--purple-600)); color:white; padding:22px; border-radius:14px; box-shadow:var(--card-shadow); width:100%; max-width:520px;">
+                <div style="text-align:center; font-weight:800; font-size:20px;">TripFlow Platform</div>
+                <div style="text-align:center; font-size:13px; opacity:0.95; margin-top:6px;">All-in-one Travel Planning System</div>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div class="system-grid" style="max-width:980px;">
+              <div class="panel">
+                <h4 style="margin:0 0 8px; color:var(--indigo-900); text-align:center; font-weight:700;">👤 Traveller Side</h4>
+                <div style="display:grid; gap:10px;">
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#3b82f6;">🔍 Discovery</strong><div style="font-size:12px; color:#6b7280;">Search destinations, stays, activities</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#7c3aed;">📅 Planning</strong><div style="font-size:12px; color:#6b7280;">Build itineraries, schedule events</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#34d399;">💳 Booking</strong><div style="font-size:12px; color:#6b7280;">Reserve stays, activities, transport</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#059669;">🗺️ Navigation</strong><div style="font-size:12px; color:#6b7280;">Real-time timeline, maps, tracking</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#f97316;">⭐ Review</strong><div style="font-size:12px; color:#6b7280;">Rate experiences, share feedback</div></div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h4 style="margin:0 0 8px; color:var(--green-700); text-align:center; font-weight:700;">🏠 Host Side</h4>
+                <div style="display:grid; gap:10px;">
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#16a34a;">📝 Listing Management</strong><div style="font-size:12px; color:#6b7280;">Create and manage properties</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#3b82f6;">📅 Calendar</strong><div style="font-size:12px; color:#6b7280;">Availability, bookings, scheduling</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#7c3aed;">💬 Communication</strong><div style="font-size:12px; color:#6b7280;">Guest messaging, inquiries</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#f97316;">💰 Revenue</strong><div style="font-size:12px; color:#6b7280;">Earnings, payouts, analytics</div></div>
+                  <div style="background:white; padding:10px; border-radius:8px; box-shadow:0 6px 16px rgba(2,6,23,0.04);"><strong style="color:#facc15;">⭐ Reputation</strong><div style="font-size:12px; color:#6b7280;">Reviews, ratings, performance</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div style="background:#f3e8ff; padding:14px; border-radius:12px; border:1px solid rgba(124,58,237,0.06); max-width:980px; margin:0 auto;">
+              <h4 style="text-align:center; margin:0 0 8px; color:var(--purple-600); font-weight:700;">⚙️ Core Systems & Features</h4>
+              <div class="grid-3" style="max-width:980px;">
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#4f46e5; display:block; text-align:center;">🔐 Authentication</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>User registration</li><li>Social login</li><li>Role management</li><li>Verification</li>
+                  </ul>
+                </div>
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#3b82f6; display:block; text-align:center;">🗺️ Smart Planning</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>Route optimization</li><li>Auto-scheduling</li><li>Time management</li><li>Budget tracking</li>
+                  </ul>
+                </div>
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#059669; display:block; text-align:center;">💳 Payments</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>Secure transactions</li><li>Multiple currencies</li><li>Refund handling</li><li>Host payouts</li>
+                  </ul>
+                </div>
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#7c3aed; display:block; text-align:center;">🔔 Notifications</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>Push alerts</li><li>Email updates</li><li>SMS reminders</li><li>In-app messages</li>
+                  </ul>
+                </div>
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#f97316; display:block; text-align:center;">🤖 AI Engine</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>Recommendations</li><li>Price predictions</li><li>Smart matching</li><li>Personalization</li>
+                  </ul>
+                </div>
+                <div style="background:white; padding:12px; border-radius:8px;">
+                  <strong style="color:#ef4444; display:block; text-align:center;">📊 Analytics</strong>
+                  <ul style="font-size:12px; color:#6b7280; margin:8px 0 0; padding-left:16px;">
+                    <li>User behavior</li><li>Booking trends</li><li>Revenue metrics</li><li>Performance KPIs</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div style="background:#f1f5f9; padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,0.06); max-width:980px; margin:0 auto;">
+              <h4 style="text-align:center; margin:0 0 8px; color:#0f172a; font-weight:700;">🗄️ Data Layer</h4>
+              <div class="data-grid" style="margin-top:8px;">
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Users<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Listings<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Bookings<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Itineraries<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Reviews<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Payments<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Messages<br><small style="color:#6b7280">Database</small></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">Analytics<br><small style="color:#6b7280">Database</small></div>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div style="background:#fffbeb; padding:12px; border-radius:12px; border:1px solid rgba(250,204,21,0.06); max-width:980px; margin:0 auto;">
+              <h4 style="text-align:center; margin:0 0 8px; color:#b45309; font-weight:700;">🔌 Third-Party Integrations</h4>
+              <div class="integration-grid" style="margin-top:8px;">
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">🗺️<div style="font-size:12px; margin-top:6px;">Google Maps</div></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">💳<div style="font-size:12px; margin-top:6px;">Payment Gateway</div></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">⛅<div style="font-size:12px; margin-top:6px;">Weather API</div></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">📧<div style="font-size:12px; margin-top:6px;">Email Service</div></div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">📱<div style="font-size:12px; margin-top:6px;">SMS Service</div></div>
+              </div>
+            </div>
+
+            <div style="height:18px;"></div>
+
+            <div style="display:flex; justify-content:center;">
+              <div style="background:linear-gradient(90deg,#10b981,#059669); color:white; padding:18px; border-radius:12px; box-shadow:var(--card-shadow); width:100%; max-width:600px; text-align:center;">
+                <div style="font-weight:800; font-size:18px;">✨ Seamless Travel Experience</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+                  <div style="background:rgba(255,255,255,0.12); padding:8px; border-radius:8px;">
+                    <strong>For Travellers</strong>
+                    <div style="font-size:12px;">Complete trip planning & execution</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.12); padding:8px; border-radius:8px;">
+                    <strong>For Hosts</strong>
+                    <div style="font-size:12px;">Efficient business management</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // simple tab switching logic
+    function showFlow(flow){
+      const flows = ['traveller','host','complete'];
+      flows.forEach(f=>{
+        document.getElementById('flow-' + f).style.display = (f === flow) ? 'block' : 'none';
+        const btn = document.getElementById('btn-' + f);
+        if(f === flow){
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected','true');
+        } else {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-selected','false');
+        }
+      });
+    }
+
+    // initial state already set to traveller
+  </script>
+</body>
+</html>
